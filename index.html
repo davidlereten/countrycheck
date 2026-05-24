@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CountryCheck BETA</title>
+  <link rel="stylesheet" href="styles.css?v=v53-admin-live" />
+</head>
+<body>
+  <main id="loginView" class="login-shell">
+    <section class="login-hero">
+      <div class="hero-inner">
+        <div class="mark xl">cc</div>
+        <p class="eyebrow">Restrictions Checker</p>
+        <h1>Restrictions Checker</h1>
+        <p>Secure country and nationality restrictions checker for onboarding agents.</p>
+      </div>
+    </section>
+    <section class="login-side">
+      <form id="loginForm" class="card login-card" autocomplete="on">
+        <div class="status-dot"></div>
+        <h2>Agent Login</h2>
+        <p class="muted">Enter your email address and password.</p>
+        <label for="emailInput">Email address</label>
+        <input id="emailInput" type="email" placeholder="Email address" autocomplete="username" required />
+        <label for="passwordInput">Password</label>
+        <div class="password-wrap">
+          <input id="passwordInput" type="password" placeholder="Password" autocomplete="current-password" required />
+          <button id="togglePassword" type="button" aria-label="Show password">👁</button>
+        </div>
+        <button id="loginBtn" class="check-btn" type="submit">Login</button>
+        <div id="loginMessage" class="message" aria-live="polite"></div>
+      </form>
+    </section>
+  </main>
+
+  <main id="appView" class="wrap hidden">
+    <header class="header">
+      <div class="logo">
+        <div class="mark">cc</div>
+        <div>
+          <h1>CountryCheck BETA</h1>
+          <div class="subtitle">Country and nationality restrictions checker for onboarding agents.</div>
+        </div>
+      </div>
+      <div class="top-meta">
+        <span class="badge"><strong>Last updated:</strong> <span id="lastUpdated">09 Mar 2026</span></span>
+        <span class="badge"><strong>User:</strong> <span id="userEmail">-</span></span>
+        <span class="badge"><strong>Role:</strong> <span id="userRole">-</span></span>
+        <button id="logoutBtn" class="small-btn" type="button">Log out</button>
+      </div>
+    </header>
+
+    <nav id="roleNav" class="tabs"></nav>
+
+    <section id="checkerSection" class="grid">
+      <div class="card form-card">
+        <h2>Customer Details</h2>
+        <div class="field">
+          <label>Registration / Residence Country</label>
+          <input id="regCountry" type="hidden" />
+          <div id="regCountryPicker" class="country-picker"></div>
+        </div>
+        <div class="field">
+          <label>Nationality / Citizenship</label>
+          <input id="natCountry" type="hidden" />
+          <div id="natCountryPicker" class="country-picker"></div>
+        </div>
+        <div class="row">
+          <div class="field">
+            <label for="poiDoc">POI Document</label>
+            <select id="poiDoc"></select>
+          </div>
+          <div class="field">
+            <label for="porDoc">POR Document</label>
+            <select id="porDoc"></select>
+          </div>
+        </div>
+        <button id="checkBtn" class="check-btn" type="button">Check Country</button>
+        <div class="footer">This tool provides internal guidance only. Final onboarding decisions must follow the latest Compliance policy.</div>
+      </div>
+      <div class="card decision-card">
+        <h2>Decision</h2>
+        <div id="decisionBox" class="result neutral">
+          <div class="status"><span class="dot"></span><strong>Ready</strong></div>
+          <div class="reason">Select customer details and click Check Country.</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="adminSection" class="card admin-panel hidden">
+      <h2 id="adminTitle">Admin</h2>
+      <div id="adminContent"></div>
+    </section>
+
+    <section class="card docs-panel">
+      <div class="docs-head">
+        <div>
+          <h2>Accepted Documents</h2>
+          <div class="mini">Hover over a document to see what it means.</div>
+        </div>
+      </div>
+      <div class="docs-grid">
+        <div class="docs-col">
+          <div class="block-title">Accepted POI Documents</div>
+          <div id="poiDocsList" class="pillbox docs-pills"></div>
+        </div>
+        <div class="docs-col">
+          <div class="block-title">Accepted POR Documents</div>
+          <div id="porDocsList" class="pillbox docs-pills"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="app.js?v=v53-admin-live"></script>
+</body>
+</html>
