@@ -1,7 +1,6 @@
 // CountryCheck Secure Roles V4. Supabase URL/key are fixed intentionally.
 const SUPABASE_PROJECT_URL = "https://ftrxlqdjmtspvwupoiyq.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_ZJ0UnfPazyYwwOIYSzKw6Q_47n9n5E6";
-const LOCAL_EMAIL_DOMAIN = "countrycheck.local";
 let sb, session, profile, countries=[], documents=[], rules=[];
 let currentView = "Checker";
 
@@ -12,7 +11,6 @@ const countryByCode = code => countries.find(c=>c.code===code);
 const isProvided = v => v && !String(v).startsWith("No ");
 
 function msg(el, text, ok=false){ el.textContent=text||""; el.className = ok ? "message ok" : "message"; }
-function usernameToEmail(u){ return `${String(u||"").trim().toLowerCase()}@${LOCAL_EMAIL_DOMAIN}`; }
 function escapeHtml(s){return String(s??"").replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[m]));}
 
 async function init(){
@@ -28,10 +26,10 @@ function bindLogin(){
   $("loginForm").onsubmit=async(e)=>{
     e.preventDefault();
     msg($("loginMessage"), "Checking...", true);
-    const username=$("usernameInput").value.trim().toLowerCase();
+    const email=$("usernameInput").value.trim().toLowerCase();
     const password=$("passwordInput").value;
-    if(!/^[a-z]+\.[a-z]+[a-z0-9._-]*$/.test(username)){ msg($("loginMessage"), "Username format should be like paul.a"); return; }
-    const {data,error} = await sb.auth.signInWithPassword({email: usernameToEmail(username), password});
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ msg($("loginMessage"), "Enter a valid email address."); return; }
+    const {data,error} = await sb.auth.signInWithPassword({email, password});
     if(error){ msg($("loginMessage"), "Login failed: "+error.message); return; }
     await enterApp(data.session);
   };
@@ -40,8 +38,12 @@ function bindLogin(){
 
 async function enterApp(s){
   session=s;
+  // Automatically creates a profile for any confirmed Supabase Auth user.
+  // admin@admin.local becomes admin; other users become agent by default.
+  const ensured = await sb.rpc("ensure_own_profile");
+  if(ensured.error){ msg($("loginMessage"), "Login OK, but profile setup failed: "+ensured.error.message); await sb.auth.signOut(); return; }
   const {data:p,error} = await sb.from("profiles").select("*").eq("id", session.user.id).single();
-  if(error || !p){ msg($("loginMessage"), "Login OK, but no active profile/role found. Create a profile row for this user in Supabase."); await sb.auth.signOut(); return; }
+  if(error || !p){ msg($("loginMessage"), "Login OK, but profile could not be loaded. Run the latest SQL patch."); await sb.auth.signOut(); return; }
   if(!p.is_active){ msg($("loginMessage"), "This user is passive/inactive. Contact admin."); await sb.auth.signOut(); return; }
   profile=p;
   $("loginPage").classList.add("hidden"); $("appPage").classList.remove("hidden");
@@ -149,7 +151,7 @@ async function loadUsers(){
 function renderUsers(users){
   $("usersTable").innerHTML=`<tr><th>Username</th><th>Display name</th><th>Role</th><th>Active</th><th>Email</th><th>Actions</th></tr>`+users.map(u=>`<tr><td>${escapeHtml(u.username)}</td><td>${escapeHtml(u.display_name||'')}</td><td>${escapeHtml(u.role)}</td><td>${u.is_active?'Active':'Passive'}</td><td>${escapeHtml(u.email)}</td><td><div class="table-actions"><button class="small-btn" onclick="adminPromptReset('${u.id}')">Reset pass</button><button class="small-btn" onclick="adminToggleActive('${u.id}',${!u.is_active})">${u.is_active?'Deactivate':'Activate'}</button><button class="small-btn" onclick="adminChangeRole('${u.id}','${u.role}')">Role</button><button class="small-btn danger-btn" onclick="adminDeleteUser('${u.id}')">Delete</button></div></td></tr>`).join("");
 }
-$("createUserBtn").onclick=async()=>{try{await callAdmin({action:"create_user",username:$("newUsername").value.trim(),display_name:$("newDisplayName").value.trim(),role:$("newRole").value,password:$("newPassword").value}); msg($("usersMessage"),"User created",true); loadUsers();}catch(e){msg($("usersMessage"),e.message)}};
+$("createUserBtn").onclick=async()=>{try{await callAdmin({action:"create_user",email:$("newUsername").value.trim().toLowerCase(),display_name:$("newDisplayName").value.trim(),role:$("newRole").value,password:$("newPassword").value}); msg($("usersMessage"),"User created",true); loadUsers();}catch(e){msg($("usersMessage"),e.message)}};
 $("refreshUsers").onclick=loadUsers;
 window.adminPromptReset=async(id)=>{const p=prompt("New password"); if(!p)return; try{await callAdmin({action:"reset_password",user_id:id,password:p}); loadUsers();}catch(e){alert(e.message)}};
 window.adminToggleActive=async(id,active)=>{try{await callAdmin({action:"set_active",user_id:id,is_active:active}); loadUsers();}catch(e){alert(e.message)}};

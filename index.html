@@ -16,10 +16,10 @@
     <section class="login-panel card">
       <div class="status-dot"></div>
       <h2>Agent Login</h2>
-      <p class="muted">Enter your assigned username and password.</p>
+      <p class="muted">Enter your email address and password.</p>
       <form id="loginForm">
-        <label>Username</label>
-        <input id="usernameInput" type="text" autocomplete="username" placeholder="Username" required />
+        <label>Email address</label>
+        <input id="usernameInput" type="email" autocomplete="username" placeholder="address@mail.com" required />
         <label>Password</label>
         <div class="password-wrap">
           <input id="passwordInput" type="password" autocomplete="current-password" placeholder="Password" required />
@@ -102,7 +102,7 @@
       <div class="card">
         <div class="section-head"><h2>Users</h2><button id="refreshUsers" class="ghost">Refresh</button></div>
         <div class="admin-form">
-          <input id="newUsername" placeholder="username e.g. paul.a" />
+          <input id="newUsername" placeholder="email e.g. agent@company.com" />
           <input id="newDisplayName" placeholder="display name" />
           <select id="newRole"><option>agent</option><option>moderator</option><option>admin</option></select>
           <input id="newPassword" placeholder="manual password" type="password" />
