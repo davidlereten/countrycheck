@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CountryCheck BETA</title>
+  <link rel="stylesheet" href="styles.css?v=roles-v4-20260310" />
+</head>
+<body>
+  <main id="loginPage" class="login-shell">
+    <section class="login-hero">
+      <div class="brand-large">CC</div>
+      <h1>Restrictions Checker</h1>
+      <p>Secure country and nationality restrictions checker for onboarding teams.</p>
+    </section>
+    <section class="login-panel card">
+      <div class="status-dot"></div>
+      <h2>Agent Login</h2>
+      <p class="muted">Enter your assigned username and password.</p>
+      <form id="loginForm">
+        <label>Username</label>
+        <input id="usernameInput" type="text" autocomplete="username" placeholder="Username" required />
+        <label>Password</label>
+        <div class="password-wrap">
+          <input id="passwordInput" type="password" autocomplete="current-password" placeholder="Password" required />
+          <button type="button" id="togglePassword" aria-label="Show password">👁</button>
+        </div>
+        <button id="loginBtn" class="primary" type="submit">Login</button>
+        <div id="loginMessage" class="message"></div>
+      </form>
+    </section>
+  </main>
+
+  <main id="appPage" class="app-shell hidden">
+    <header class="app-header">
+      <div class="brand-row">
+        <div class="brand-small">CC</div>
+        <div>
+          <h1>CountryCheck BETA</h1>
+          <p>Country and nationality restrictions checker for onboarding agents.</p>
+        </div>
+      </div>
+      <div class="top-actions">
+        <span class="pill">Last updated: <b id="lastUpdated">—</b></span>
+        <span class="pill">User: <b id="currentUser">—</b></span>
+        <span class="pill role-pill">Role: <b id="currentRole">—</b></span>
+        <button id="logoutBtn" class="ghost">Log out</button>
+      </div>
+    </header>
+
+    <nav id="navTabs" class="nav-tabs"></nav>
+
+    <section id="viewChecker" class="view active">
+      <div class="grid-main">
+        <section class="card form-card">
+          <h2>Customer Details</h2>
+          <label>Registration / Residence Country</label>
+          <select id="regCountry"></select>
+          <label>Nationality / Citizenship</label>
+          <select id="natCountry"></select>
+          <div class="two-col">
+            <div>
+              <label>POI Document</label>
+              <select id="poiDoc"></select>
+            </div>
+            <div>
+              <label>POR Document</label>
+              <select id="porDoc"></select>
+            </div>
+          </div>
+          <button id="checkBtn" class="primary">Check Country</button>
+          <p class="disclaimer">This tool provides internal guidance only. Final onboarding decisions must follow the latest Compliance policy.</p>
+        </section>
+        <section class="card decision-card">
+          <h2>Decision</h2>
+          <div id="decisionBox" class="decision empty">
+            <h3>No check yet</h3>
+            <p>Select customer details and run a check.</p>
+          </div>
+        </section>
+      </div>
+      <section class="card docs-card">
+        <h2>Accepted Documents</h2>
+        <div class="docs-grid">
+          <div>
+            <h3>Accepted POI Documents</h3>
+            <div id="poiDocsList" class="chips"></div>
+          </div>
+          <div>
+            <h3>Accepted POR Documents</h3>
+            <div id="porDocsList" class="chips"></div>
+          </div>
+        </div>
+      </section>
+    </section>
+
+    <section id="viewDashboard" class="view">
+      <div class="grid-stats" id="statsGrid"></div>
+    </section>
+
+    <section id="viewUsers" class="view">
+      <div class="card">
+        <div class="section-head"><h2>Users</h2><button id="refreshUsers" class="ghost">Refresh</button></div>
+        <div class="admin-form">
+          <input id="newUsername" placeholder="username e.g. paul.a" />
+          <input id="newDisplayName" placeholder="display name" />
+          <select id="newRole"><option>agent</option><option>moderator</option><option>admin</option></select>
+          <input id="newPassword" placeholder="manual password" type="password" />
+          <button id="createUserBtn" class="primary">Create user</button>
+        </div>
+        <div id="usersMessage" class="message"></div>
+        <div class="table-wrap"><table id="usersTable"></table></div>
+      </div>
+    </section>
+
+    <section id="viewRules" class="view">
+      <div class="card">
+        <div class="section-head"><h2>Rules Database</h2><button id="refreshRules" class="ghost">Refresh</button></div>
+        <div class="admin-form rules-form">
+          <select id="ruleCountry"></select>
+          <select id="ruleApplies"><option value="nationality">nationality</option><option value="registration">registration</option><option value="residence">residence</option></select>
+          <select id="ruleType"><option value="direct_restricted">direct_restricted</option><option value="poi_por_required">poi_por_required</option><option value="por_required">por_required</option><option value="platform_block">platform_block</option><option value="note">note</option></select>
+          <input id="rulePlatforms" placeholder="platforms: Ventorus;Maunto" />
+          <input id="ruleNote" placeholder="note" />
+          <button id="addRuleBtn" class="primary">Add rule</button>
+        </div>
+        <div id="rulesMessage" class="message"></div>
+        <div class="table-wrap"><table id="rulesTable"></table></div>
+      </div>
+    </section>
+
+    <section id="viewBulk" class="view">
+      <div class="card">
+        <h2>Bulk Import</h2>
+        <p class="muted">Paste CSV rows. Columns: country_code,country_name,applies_to,rule_type,platforms,note,requires_poi,requires_por,active</p>
+        <textarea id="csvInput" class="csv-box" placeholder="LC,Saint Lucia,registration,platform_block,Ventorus;Maunto,Blocked for Ventorus and Maunto only,false,false,true"></textarea>
+        <button id="importCsvBtn" class="primary">Import CSV</button>
+        <div id="bulkMessage" class="message"></div>
+      </div>
+    </section>
+
+    <section id="viewSearchHistory" class="view">
+      <div class="card">
+        <div class="section-head"><h2>Search History</h2><button id="refreshHistory" class="ghost">Refresh</button></div>
+        <div class="table-wrap"><table id="historyTable"></table></div>
+      </div>
+    </section>
+
+    <section id="viewAudit" class="view">
+      <div class="card">
+        <div class="section-head"><h2>Audit Logs</h2><button id="refreshAudit" class="ghost">Refresh</button></div>
+        <div class="table-wrap"><table id="auditTable"></table></div>
+      </div>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="app.js?v=roles-v4-20260310"></script>
+</body>
+</html>
